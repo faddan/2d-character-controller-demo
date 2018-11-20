@@ -15,8 +15,23 @@ public class BunnyControllerScript : MonoBehaviour {
     [SerializeField]
     Animator anim;
 
-	// Use this for initialization
-	void Start ()
+    [SerializeField]
+    bool grounded = false;
+
+    [SerializeField]
+    public Transform groundCheck;
+
+    [SerializeField]
+    float groundRadius = 0.2f;
+
+    [SerializeField]
+    public LayerMask whatIsGround;
+
+    [SerializeField]
+    public float jumpForce = 700f;
+
+    // Use this for initialization
+    void Start ()
     {
         anim = GetComponent<Animator>();
 	}
@@ -24,6 +39,11 @@ public class BunnyControllerScript : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate ()
     {
+        grounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, whatIsGround);
+        anim.SetBool("Ground", grounded);
+
+        anim.SetFloat("vSpeed", rb2d.velocity.y);
+
         float move = Input.GetAxis("Horizontal");
 
         anim.SetFloat("Speed", Mathf.Abs(move));
@@ -35,6 +55,15 @@ public class BunnyControllerScript : MonoBehaviour {
         else if (move < 0 && facingRight)
             Flip();
 	}
+
+    void Update()
+    {
+       if(grounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetBool("Ground", false);
+            rb2d.AddForce(new Vector2(0, jumpForce));
+        } 
+    }
 
     void Flip()
     {
